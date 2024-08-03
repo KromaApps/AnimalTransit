@@ -1,9 +1,11 @@
-import Item from "../components/item";
-
+import Item from "../Components/item";
+import Banner from "../Components/Banner";
 const Home = () => {
   return (
     <div className="bg-white/80">
-      <h1 className="text-4xl">Banner</h1>
+      <div>
+        <Banner />
+      </div>
       <Item />
     </div>
   );

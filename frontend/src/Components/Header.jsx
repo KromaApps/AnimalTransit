@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Sidebar } from "./Sidebar/Sidebar";
-// import { BsList } from "react-icons/bs";
 import { CiShoppingCart } from "react-icons/ci";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
