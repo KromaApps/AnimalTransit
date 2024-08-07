@@ -1,102 +1,73 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Sidebar } from "./Sidebar/Sidebar";
 import { CiShoppingCart } from "react-icons/ci";
 import { GiHamburgerMenu } from "react-icons/gi";
-import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import {
-  Disclosure,
-  DisclosureButton,
-  DisclosurePanel,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuItems,
-} from "@headlessui/react";
-import TempLogo from "../assets/logo.png";
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 
 const userNavigation = [
-  { name: "Your Profile", href: "#" },
-  { name: "Settings", href: "#" },
+  { name: "Your Profile", to: "/profile" },
+  { name: "Settings", to: "/settings" },
   { name: "Sign out", href: "#" },
 ];
-const user = {
+
+const defaultUser = {
   name: "Afzal Shaikh",
-  email: "tom@example.com",
+  email: "afzal@example.com",
   imageUrl:
     "https://th.bing.com/th?id=OIP.jixXH_Els1MXBRmKFdMQPAHaHa&w=250&h=250&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2",
 };
+
 const Header = () => {
   const [open, setOpen] = useState(false);
-  const Logo = () => {
-    return (
-      <div className="md:w-5/12">
-        <Link to="/">
-          <img
-            src={TempLogo}
-            alt="add logo this one is temporary"
-            className="w-[40px]"
-          />
-        </Link>
-      </div>
-    );
-  };
+  const [itemCount, setItemCount] = useState(0);
+  const user = JSON.parse(localStorage.getItem("user")) || defaultUser;
 
-  const MenuBar = () => {
-    return (
-      <Menu as="div" className="relative ml-3">
-        <div>
-          <MenuButton className="relative flex max-w-xs items-center rounded-full bg-gray-800 text-sm">
-            <span className="absolute -inset-1.5" />
-            <span className="sr-only">Open user menu</span>
-            <img alt="" src={user.imageUrl} className="h-8 w-8 rounded-full" />
-          </MenuButton>
-        </div>
-        <MenuItems
-          transition
-          className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
-        >
+  useEffect(() => {
+    const updateCartCount = () => {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      setItemCount(
+        cart.reduce((count, item) => count + (item.quantity || 0), 0)
+      );
+    };
+
+    updateCartCount();
+    window.addEventListener("cartUpdated", updateCartCount);
+
+    return () => {
+      window.removeEventListener("cartUpdated", updateCartCount);
+    };
+  }, []);
+
+  const Logo = () => (
+    <div className="md:w-5/12">
+      <Link to="/">
+        <h2 className="text-white cursor-pointer">PetMart</h2>
+      </Link>
+    </div>
+  );
+
+  const MenuBar = () => (
+    <Menu as="div" className="relative ml-3">
+      <div>
+        <MenuButton className="relative flex max-w-xs items-center rounded-full bg-amber-800 text-sm focus:outline-none">
+          <span className="sr-only">Open user menu</span>
+          <img
+            className="h-8 w-8 rounded-full"
+            src={user.imageUrl}
+            alt={user.name}
+          />
+        </MenuButton>
+      </div>
+      <MenuItems className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+        <div className="p-1">
           {userNavigation.map((item) => (
             <MenuItem key={item.name}>
-              <a
-                href={item.href}
-                className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
-              >
-                {item.name}
-              </a>
-            </MenuItem>
-          ))}
-        </MenuItems>
-      </Menu>
-    );
-  };
-
-  const Cart = () => {
-    const cartItems = [
-      { name: "View Cart", href: "/cart" },
-      { name: "Checkout", href: "/checkout" },
-    ];
-
-    return (
-      <Menu as="div" className="relative ml-3">
-        <div>
-          <MenuButton className="relative flex items-center text-white">
-            <span className="sr-only">Open cart menu</span>
-            <CiShoppingCart className="text-2xl" />
-            <p className="absolute -top-2 -right-2 font-medium">2</p>
-          </MenuButton>
-        </div>
-        <Menu.Items
-          transition
-          className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
-        >
-          {cartItems.map((item) => (
-            <MenuItem key={item.name}>
-              {({ active: boolean }) => (
+              {({ active }) => (
                 <Link
-                  to={item.href}
-                  className={`block px-4 py-2 text-sm text-gray-700 ${
-                    active ? "bg-gray-100" : ""
+                  to={item.to}
+                  className={`block px-4 py-2 text-sm ${
+                    active ? "bg-gray-100 text-gray-900" : "text-gray-700"
                   }`}
                 >
                   {item.name}
@@ -104,56 +75,38 @@ const Header = () => {
               )}
             </MenuItem>
           ))}
-        </Menu.Items>
-      </Menu>
-    );
-  };
+        </div>
+      </MenuItems>
+    </Menu>
+  );
 
   return (
-    <header className="bg-gray-800 sticky top-0 w-full z-10 text-white ">
-      <Disclosure as="nav" className="bg-[#228b22]">
-        <div className="h-16 flex justify-between items-center relative mx-4 md:mx-14">
-          <Logo />
-          <nav className="md:w-7/12  flex justify-between">
-            <ul className="flex  list-none gap-4 flex-start">
-              <li className="hidden md:flex">
-                <Link to="/" className="text-white hover:text-purple-700">
-                  Home
-                </Link>
-              </li>
-              <li className="hidden md:flex">
-                <Link
-                  to="/contact"
-                  className="text-white hover:text-purple-700"
-                >
-                  Contact Us
-                </Link>
-              </li>
-            </ul>
-            <div className="hidden  md:flex flex-end space-between gap-4">
-              <Cart />
-              <MenuBar></MenuBar>
-              <div>
-                <button className="ml-4" onClick={() => setOpen(true)}>
-                  <GiHamburgerMenu size={28} />
-                </button>
-                {open && <Sidebar open={open} setOpen={setOpen} />}
-              </div>
-            </div>
-          </nav>
-
-          <div className="flex md:hidden items-center gap-4">
-            <Cart />
-            <MenuBar />
-            <button onClick={() => setOpen(true)}>
-              <GiHamburgerMenu size={28} />
-            </button>
-            {open && <Sidebar open={open} setOpen={setOpen} />}
+    <header className="sticky top-0 z-10 flex h-16 w-full items-center justify-between bg-[#228b22] p-4">
+      <div className="flex items-center">
+        <Logo />
+        <button
+          type="button"
+          className="ml-4 inline-flex items-center p-2 text-white"
+          onClick={() => setOpen(!open)}
+        >
+          <span className="sr-only">Open main menu</span>
+          <GiHamburgerMenu className="h-6 w-6" />
+        </button>
+        <Sidebar open={open} setOpen={setOpen} />
+      </div>
+      <div className="flex items-center">
+        <Link to="/cart">
+          <div className="relative p-2 text-gray-300 hover:text-white">
+            <CiShoppingCart className="h-8 w-8" />
+            {itemCount > 0 && (
+              <span className="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-medium text-white bg-red-500 rounded-full">
+                {itemCount}
+              </span>
+            )}
           </div>
-        </div>
-      </Disclosure>
-
-      {/*  */}
+        </Link>
+        <MenuBar />
+      </div>
     </header>
   );
 };

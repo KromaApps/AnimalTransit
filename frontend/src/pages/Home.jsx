@@ -1,5 +1,5 @@
-import Item from "../Components/item";
-import Banner from "../Components/Banner";
+import Item from "../components/item";
+import Banner from "../components/Banner";
 const Home = () => {
   return (
     <div className="bg-white/80">
